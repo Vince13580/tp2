@@ -8,39 +8,41 @@ template <typename T>
 class CList
 {
 private:
-    CNode<T>* m_fictionaHead;
-    CNode<T>* m_realTail;
+    std::shared_ptr<CNode<T>> m_fictionaHead;
+    std::shared_ptr<CNode<T>> m_realTail;
 
 public:
     CList ();
     ~CList ();
     void push_front (const T & val);
     void Show () const;
-    CNode<T>* Find (const T & val) const;
-    void Add (const T & val, CNode<T>*);
-    void Delete (CNode<T>*);
+    std::shared_ptr<CNode<T>> Find (const T & val) const;
+    void Add (const T & val, std::shared_ptr<CNode<T>>);
+    void Delete (std::shared_ptr<CNode<T>>);
     void push_back (const T & val);
-    CNode<T>* Begin () const;
-    void AddAfter (CNode<T>*, const T & val);
+    std::shared_ptr <CNode<T>> Begin () const;
+    void AddAfter (const std::shared_ptr<CNode<T>>, const T & val);
+    void AddBefore (const std::shared_ptr<CNode<T>>, const T & val);
 };
 
 template <typename T>
-CNode<T>* CList<T>::Begin () const
+std::shared_ptr<CNode<T>> CList<T>::Begin () const
 {
     return m_fictionaHead;
 }
 
 template <typename T>
-void CList<T>::AddAfter (CNode<T>* ptr, const T & val)
+void CList<T>::AddAfter (const std::shared_ptr<CNode<T>> ptr, const T & val)
 {
-    ptr -> SetNextNode (new CNode<T> (val, ptr-> GetNextNode()));
+    std::shared_ptr<CNode<T>> tmp (new CNode<T>(val, ptr-> GetNextNode()));
+    ptr -> SetNextNode (tmp);
     if (ptr == m_realTail) m_realTail = ptr->GetNextNode ();
 }
 
 template <typename T>
-void CList<T>::Add (const T & val, CNode<T>* ptr)
+void CList<T>::Add (const T & val, std::shared_ptr<CNode<T>> ptr)
 {
-    CNode<T>* ptrTmp = new CNode<T> (val, ptr -> GetNextNode ());
+    std::shared_ptr<CNode<T>> ptrTmp = new std::shared_ptr <CNode<T>> (val, ptr -> GetNextNode ());
     ptr -> SetNextNode (ptrTmp);
     if (ptr == m_realTail) m_realTail = ptr->GetNextNode ();
 }
@@ -56,19 +58,26 @@ void CList<T>::Add (const T & val, CNode<T>* ptr)
 
 } // AjoutApres()
 */
-
 template <typename T>
-CList<T>::CList () : m_fictionaHead (new CNode<T> ()), m_realTail (m_fictionaHead) {};
-
-template <typename T>
-CList<T>::~CList () {
-    delete m_fictionaHead;
+void AddBefore (const std::shared_ptr < CNode < T>> & ptr, const T & val)
+{
+    std::shared_ptr<CNode<T>> tmp (new CNode<T>(val, ptr-> GetPresNode()));
+    ptr -> SetPresNode (tmp);
+    if (ptr == m_realTail) m_realTail = ptr->GetPresNode ();
 }
 
 template <typename T>
-CNode<T>* CList<T>::Find (const T & val) const
+CList<T>::CList () : m_fictionaHead (new CNode<T> ()), m_realTail (new CNode<T> ()) {};
+
+template <typename T>
+CList<T>::~CList () {
+
+}
+
+template <typename T>
+std::shared_ptr <CNode<T>> CList<T>::Find (const T & val) const
 {
-    CNode<T>* Ptr (m_fictionaHead->GetNextNode ());
+    std::shared_ptr<CNode<T>> Ptr (m_fictionaHead->GetNextNode ());
     for (; Ptr != nullptr && Ptr -> GetData () != val ; Ptr = Ptr->GetNextNode ());
 
     return Ptr;
@@ -79,7 +88,8 @@ CNode<T>* CList<T>::Find (const T & val) const
 template <typename T>
 void CList<T>::push_front (const T & val)
 {
-    m_fictionaHead->SetNextNode (new CNode<T> (val, m_fictionaHead->GetNextNode ()));
+    //m_fictionaHead->SetNextNode (new CNode<T> (val, m_fictionaHead->GetNextNode ()));
+    m_fictionaHead->SetNextNode (std::shared_ptr<CNode<T>> (new CNode<T> (val, m_fictionaHead->GetNextNode ())));
     if (m_realTail == m_fictionaHead) m_realTail = m_fictionaHead->GetNextNode ();
 }
 
@@ -87,28 +97,28 @@ template <typename T>
 void CList<T>::Show () const
 {
     //for (CNodeInt* Ptr (m_Head); Ptr; ++*Ptr)
-    for (CNode<T>* Ptr (m_fictionaHead -> GetNextNode()); Ptr; Ptr = Ptr->GetNextNode ())
-            std::cout << Ptr->GetData() << "; ";
+    for (std::shared_ptr<CNode<T>> Ptr (m_fictionaHead -> GetNextNode()); Ptr; Ptr = Ptr->GetNextNode ())
+        std::cout << Ptr->GetData() << "; ";
     std::cout << std::endl;
 }
 
 template <typename T>
-void CList<T>::Delete (CNode<T>* pDelete)
+void CList<T>::Delete (std::shared_ptr <CNode<T>> pDelete)
 {
-    CNode<T>* pFind (m_fictionaHead);
+    std::shared_ptr<CNode<T>> pFind (m_fictionaHead);
     for ( ; pFind -> GetNextNode () != pDelete ; pFind = pFind -> GetNextNode ());
 
     pFind -> SetNextNode (pDelete -> GetNextNode ());
     if (pDelete == m_realTail) m_realTail = pFind;
     pDelete -> SetNextNode (nullptr);
 
-    delete pDelete;
+//    delete pDelete;
 }
 
 template <typename T>
 void CList<T>::push_back (const T & val)
 {
-    CNode<T>* pTmp = new CNode<T> (val, NULL);
+    std::shared_ptr<CNode<T>> pTmp (new CNode<T> (val, nullptr));
     m_realTail -> SetNextNode (pTmp);
     m_realTail = pTmp;
 }
